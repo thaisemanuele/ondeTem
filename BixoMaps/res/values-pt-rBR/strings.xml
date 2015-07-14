@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Onde Tem</string>
+    <string name="app_description">Recomendando locais e serviços na cidade de São Carlos</string>
+    <string name="title_section1">Section 1</string>
+    <string name="title_section2">Section 2</string>
+    <string name="title_review">Revisões</string>
+    <string name="no_reviews">Não há revisões</string>
+   	<string name="action_about">Sobre</string>
+   	<string name="action_settings">Configurações</string>
+   	<string name="about_message">Este projeto foi desenvolvido com o apoio financeiro da CAPES/Brasil\n
+   	    \nOndeTem - Versão 2.0</string>
+    <string name="category_car">Serviços Automotivos</string>
+	<string name="category_bank">Bancos</string>
+	<string name="category_education">Educação</string>
+	<string name="category_medical">Hospitais e Clínicas</string>
+	<string name="category_emergency">Emergências</string>
+	<string name="category_culture">Cultura e Entretenimento</string>
+	<string name="category_food">Alimentação</string>
+	<string name="category_government">Orgãos Governamentais</string>
+	<string name="category_lodging">Hospedagem</string>
+	<string name="category_recreation">Recreação</string>
+	<string name="category_publicservices">Serviços Públicos</string>
+	<string name="category_shops">Compras</string>	
+	<string name="category_transport">Transporte Público</string>	
+	<string name="category_worship">Locais de Adoração</string>	
+	<string name="category_home">Serviços Domésticos</string>	
+	<string name="category_beauty">Beleza</string>	
+	<string name="category_administrative">Serviços Administrativos</string>	
+	<string name="category_animal">Pet Shops</string>	
+	<string name="category_notary">Tabelião e Correios</string>	
+	<string name="city_selection">"Cidade:"</string>
+    <string name="num_places">"Quantidade de locais:"</string>
+    <string name="city_saocarlos">"São Carlos"</string>
+	<string name="review_place">Avaliar local</string>
+	<string name="leave_comment">Deixe um comentário</string>
+	<string name="submit_button">Enviar</string>
+	<string name="save_button">Salvar</string>
+	<string name="cancel_button">Cancelar</string>
+	<string name="finding_route">Obtendo Rota</string>
+	<string name="location_unavailable">Não foi possível obter a localização</string>
+	<string name="route_duration">Duração: </string>	
+	<string name="route_mode_driving">Modo: Carro</string>
+	<string name="route_mode_walking">Modo: Andando</string>
+	<string name="no_connection">Sem conexão com a Internet</string>
+	<string name="searching">Buscando</string>
+    <string name="no_results">A busca não encontrou resultados</string>
+	<string name="confirm_submit">Enviar?</string>
+	<string name="checkin_available">Check In disponível</string>
+	<string name="checkin_confirm">Gostaria de fazer check in em</string>
+	<string name="checkin_button">Check in</string>
+	<string name="checkin_done">Check in realizado</string>
+	<string name="settings_done">Configuração salva</string>
+	<string name="checkin_unavailable">Check in indisponível</string>
+	<string name="checkin_not_possible">Não é possível realizar o check in a essa distância</string>
+	<string name="language">pt-br</string>
+	<string name="needs_gps">O Onde Tem precisa obter sua localização</string>
+	<string name="open_settings">Por favor, ative o serviço de localização do seu celular e tente novamente. </string>
+		
+</resources>
+

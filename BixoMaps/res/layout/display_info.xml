@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:android1="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+    android:background="#FFFFFF"
+    android:orientation="vertical"
+    android1:gravity="center_horizontal" >
+
+    <FrameLayout
+        android1:id="@+id/title_frame"
+        android1:layout_width="match_parent"
+        android1:layout_height="wrap_content"
+        android1:layout_gravity="center_horizontal"
+        android1:layout_marginBottom="5dp"
+        android1:background="#404040" >
+
+        <TextView
+            android1:id="@+id/info_title"
+            android1:layout_width="wrap_content"
+            android1:layout_height="wrap_content"
+            android1:layout_gravity="center_horizontal"
+            android1:background="#404040"
+            android1:gravity="center_horizontal"
+            android1:paddingLeft="10dp"
+            android1:paddingRight="10dp"
+            android1:text=""
+            android1:textAppearance="?android:attr/textAppearanceLarge"
+            android1:textColor="#F8F8F8" />
+
+    </FrameLayout>
+
+    <LinearLayout
+        android1:layout_width="wrap_content"
+        android1:layout_height="wrap_content"
+        android1:layout_gravity="center_horizontal"
+        android:orientation="horizontal"
+        android1:gravity="center_horizontal" >
+
+        <ImageView
+            android1:id="@+id/imageView1"
+            android1:layout_width="wrap_content"
+            android1:layout_height="wrap_content"
+            android1:layout_gravity="right"
+            android1:src="@drawable/ic_phone" />
+
+        <TextView
+            android1:id="@+id/info_phone"
+            android1:layout_width="match_parent"
+            android1:layout_height="wrap_content"
+            android1:layout_gravity="start|center_vertical"
+            android1:gravity="left"
+            android1:paddingLeft="10dp"
+            android1:phoneNumber="true"
+            android1:text="TextView" />
+    </LinearLayout>
+
+    <RatingBar
+        android1:id="@+id/info_ratingBar"
+        android1:layout_width="wrap_content"
+        android1:layout_height="wrap_content"
+        android1:layout_gravity="center_horizontal"
+        android1:numStars="5" />
+
+    <LinearLayout
+        android1:layout_width="wrap_content"
+        android1:layout_height="wrap_content"
+        android1:layout_gravity="center_horizontal" >
+
+        <Switch
+            android1:id="@+id/switchReviews"
+            android1:layout_width="wrap_content"
+            android1:layout_height="match_parent"
+            android1:layout_gravity="center"
+            android1:layout_marginLeft="15dp"
+            android1:text="@string/title_review"
+            android1:textAppearance="?android:attr/textAppearanceSmall" />
+    </LinearLayout>
+
+    <TextView
+        android1:id="@+id/textView2"
+        android1:layout_width="match_parent"
+        android1:layout_height="wrap_content"
+        android1:text=""
+        android1:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <RelativeLayout
+        android1:id="@+id/commentButtons"
+        android1:layout_width="wrap_content"
+        android1:layout_height="wrap_content"
+        android1:gravity="center_horizontal" >
+    </RelativeLayout>
+
+    <ListView
+        android1:id="@+id/listReviews"
+        android1:layout_width="match_parent"
+        android1:layout_height="wrap_content" >
+    </ListView>
+
+    <LinearLayout
+        android1:layout_width="match_parent"
+        android1:layout_height="2dp"
+        android1:background="#5D5D5D" >
+    </LinearLayout>
+
+    <LinearLayout
+        android1:id="@+id/icons_layout"
+        android1:layout_width="match_parent"
+        android1:layout_height="wrap_content"
+        android1:gravity="center_horizontal" >
+
+        <ImageButton
+            android1:id="@+id/direcButton"
+            android1:layout_width="wrap_content"
+            android1:layout_height="wrap_content"
+            android1:background="#FFFFFF"
+            android1:paddingBottom="10dp"
+            android1:paddingLeft="25dp"
+            android1:paddingRight="25dp"
+            android1:paddingTop="6dp"
+            android1:src="@drawable/ic_directions" />
+
+        <ImageButton
+            android1:id="@+id/checkin_button"
+            android1:layout_width="wrap_content"
+            android1:layout_height="wrap_content"
+            android1:background="#FFFFFF"
+            android1:paddingBottom="10dp"
+            android1:paddingLeft="25dp"
+            android1:paddingRight="25dp"
+            android1:paddingTop="6dp"
+            android1:src="@drawable/ic_check_in_un" />
+
+        <ImageButton
+            android1:id="@+id/addRev_Button"
+            android1:layout_width="wrap_content"
+            android1:layout_height="wrap_content"
+            android1:background="#FFFFFF"
+            android1:onClick="addReview"
+            android1:paddingBottom="10dp"
+            android1:paddingLeft="25dp"
+            android1:paddingRight="25dp"
+            android1:paddingTop="6dp"
+            android1:src="@drawable/ic_add" />
+    </LinearLayout>
+
+    <LinearLayout
+        android1:layout_width="match_parent"
+        android1:layout_height="2dp"
+        android1:background="#404040" >
+    </LinearLayout>
+
+</LinearLayout>

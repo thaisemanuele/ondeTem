@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">&#x0A;<refactoring comment="Rename resource &apos;BixoMaps/res/anim/scale_translate.xml&apos; to &apos;pop_show.xml&apos;" description="Rename resource &apos;scale_translate.xml&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="res/anim/scale_translate.xml" name="pop_show.xml" stamp="1424951542116" updateReferences="true"/>&#x0A;<refactoring comment="Rename resource &apos;BixoMaps/res/anim/pop_hide&apos; to &apos;pop_hide.xml&apos;" description="Rename resource &apos;pop_hide&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="res/anim/pop_hide" name="pop_hide.xml" stamp="1424951628592" updateReferences="true"/>
+</session>

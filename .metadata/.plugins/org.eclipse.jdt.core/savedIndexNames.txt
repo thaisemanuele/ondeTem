@@ -1,0 +1,5 @@
+INDEX VERSION 1.126+C:\Users\Thais\Documents\USP\bixoMaps\workspace\.metadata\.plugins\org.eclipse.jdt.core
+430278016.index
+848856923.index
+1035107805.index
+965600692.index

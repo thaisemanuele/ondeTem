@@ -1,0 +1,1070 @@
+package com.icmc.ic.bixomaps;
+
+/**
+ * Main Activity
+ * This class contains the main processes from the app
+ * It controls the flow and any changes to the map
+ *
+ * @author Thais Santos
+ * @version 2.0
+ * @since October 01, 2014
+ */
+
+
+import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
+
+import org.w3c.dom.Document;
+
+import android.app.ActionBar;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnDismissListener;
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.Point;
+import android.location.Location;
+import android.location.LocationManager;
+import android.os.Bundle;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
+import android.view.Display;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.view.ViewTreeObserver;
+import android.view.ViewTreeObserver.OnDrawListener;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.EditText;
+import android.widget.ExpandableListView;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.ProgressBar;
+import android.widget.RatingBar;
+import android.widget.RatingBar.OnRatingBarChangeListener;
+import android.widget.RelativeLayout;
+import android.widget.Switch;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
+
+public class MainActivity extends Activity implements
+NavigationDrawerFragment.NavigationDrawerCallbacks, AsyncResponse{
+
+	
+	private DrawerLayout mNavDrawer;
+	private ActionBarDrawerToggle mDrawerToggle;
+	/**
+	 * Used to store the last screen title. For use in
+	 * {@link #restoreActionBar()}.
+	 */
+	private CharSequence mTitle;				/* The activity's title*/
+	private AlertDialog al;
+	private AlertDialog checkin;
+	static Recommendation rec;					/*A recommendation that was requested*/
+	static GoogleMap googleMap;					/*The application's main element "the map"*/
+	LatLng point1;
+	LatLng point2;
+	LatLngBounds bounds;						/*Bounds for zooming the map*/
+	static Location myLocation = null;			/*User's Location*/
+	String mode= new String("driving");			/*Route mode (default "driving")*/
+	static String duration = new String();		/*Route duration*/
+	static String warnings = new String();		/*Warnings from a route*/
+	static String copyrights = new String();	/*Copyrights from a route*/
+	static String requestXML;
+	static String notifyXML;
+	Boolean flag1 = false;
+	Boolean flag2 = false;
+	private Context context;		/*The application context*/
+	private ProgressBar progress;	/*Indicates the progress status of a request*/
+	private String selectedName;	/*Category selected on the drawer menu*/
+	
+	ListView listReviews;
+	PopupWindow pop = new PopupWindow();
+	PopupWindow route_pop = new PopupWindow();
+	
+	/*This method runs every time the application is initiated */
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		
+		/*Set the Content to the correct layout*/
+		setContentView(R.layout.activity_main);
+		context = getApplicationContext();
+		
+		/*Getting the action bar*/
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+		getActionBar().setHomeButtonEnabled(true);
+		
+		/*Declaring the correct element for the left drawer*/
+		ListView drawerList = (ListView)this.findViewById(R.id.left_drawer);
+		DrawerMenu dM = new DrawerMenu();
+		
+		/*Adapts the array with the layout of a drawer list item*/
+		ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
+                this, 
+                R.layout.drawer_list_item,
+                /*Get the categories to display*/
+                dM.getOptions(this.getApplicationContext()) );
+
+		/*Setting the adapter with the categories to display*/
+        drawerList.setAdapter(arrayAdapter);
+        
+        /*Adding a Listener to the action of clicking an item*/
+        drawerList.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position,
+                    long id) {
+            	/*Retrieving the list of categories*/
+            	ListView list = (ListView)findViewById(R.id.left_drawer);
+    			/*Retrieving the name of a clicked item*/
+            	String name = list.getItemAtPosition(position).toString();
+    			selectedName = name;
+    			
+    			/*Change the title of the action bar to Searching...
+    			 * until the recommendation response is received*/
+    			getActionBar().setTitle(context.getString(R.string.searching));
+    			
+    			/*initialising the location*/
+    			myLocation = googleMap.getMyLocation();
+    			Double lat = 0.0, lon = 0.0;
+    			/*extras included in the loading page, containing the user's position*/
+    			Bundle extras = getIntent().getExtras(); 
+       			if (extras != null) {
+       				lat = Double.parseDouble(extras.getString("lat")); 
+        			lon = Double.parseDouble(extras.getString("lon"));
+        			myLocation = new Location("");
+        			myLocation.setLatitude(lat);
+        			myLocation.setLongitude(lon);
+    			}
+    			
+    			MainActivity.requestXML = RequestHandler.getRecommendationRequest(name, lat, lon, getApplicationContext());
+    			
+    			// Call the web server with the recommendation request xml data (using the class RecommendationRequest.java)
+    			//Start Progress bar
+    			progress = (ProgressBar)findViewById(R.id.search_progressBar);
+    			progress.setIndeterminate(true);
+    			progress.setVisibility(View.VISIBLE);
+    			new RecommendationRequest().execute(MainActivity.this);
+    			///////////////////////////////////////////////////////////
+    			
+    			/*Closing the drawer after an option is selected*/
+    			mNavDrawer.closeDrawers();
+                            }
+        });//END of the drawerList onClick Listener
+        
+		mTitle = getTitle(); 		/*The activity's title*/
+		
+		/*Setting the correct layout for the drawer*/
+	    mNavDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+	    
+	    /*Setting a toggle to the drawer menu*/
+	    mDrawerToggle = new ActionBarDrawerToggle(
+	            this,                  /* host Activity */
+	            mNavDrawer,         /* DrawerLayout object */
+	            R.drawable.ic_drawer,  /* nav drawer icon to replace 'Up' caret */
+	            R.string.drawer_open,  /* "open drawer" description */
+	            R.string.drawer_close  /* "close drawer" description */
+	            ) {
+
+	        /** Called when a drawer has settled in a completely closed state. */
+	        public void onDrawerClosed(View view) {
+	        	//TODO if an action is required on this state
+	        }
+
+	        /** Called when a drawer has settled in a completely open state. */
+	        public void onDrawerOpened(View drawerView) {
+	            /*Dismiss the popUp if the drawer is opened while the popUp is showing */
+	        	if(pop.isShowing()){
+	            	pop.dismiss();
+	            }
+	        	
+	        	/** Clear the map and add the markers again
+	        	 * every time the drawer is opened*/
+	            googleMap.clear();
+		        addMarkers();
+		    }//END of the onDrawerOpened Method
+	       
+	    };//END of the DrawerToggle declaration
+	    
+
+	    // Set the drawer toggle as the DrawerListener
+	    mNavDrawer.setDrawerListener(mDrawerToggle);
+
+	    getActionBar().setDisplayHomeAsUpEnabled(true);
+	    getActionBar().setHomeButtonEnabled(true);
+	
+		/****************/
+	  
+	    
+	    googleMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+		googleMap.setMyLocationEnabled(true);
+		final LocationProvider mLocationProvider = new LocationProvider(this);
+		//myLocation = googleMap.getMyLocation();
+		myLocation = mLocationProvider.location;
+		if (myLocation ==null){ 
+			flag1 = true;
+			Toast toast = Toast.makeText(getApplicationContext(), R.string.location_unavailable, 10);
+			toast.show();
+			
+			AlertDialog checkin = new AlertDialog.Builder(this)
+		    .setTitle(getString(R.string.needs_gps))
+		    .setMessage(getString(R.string.open_settings))
+		    .setPositiveButton(android.R.string.yes, 
+		    		new DialogInterface.OnClickListener() {
+		    			public void onClick(DialogInterface dialog, int which) {
+		    			finish();
+		        	
+		        }
+		     })
+		    .setIcon(getResources().getDrawable(R.drawable.ic_check_un)).create();
+		    checkin.show();
+		    
+			checkin.setOnDismissListener(new OnDismissListener(){
+
+				@Override
+				public void onDismiss(DialogInterface dialog) {
+					finish();
+					
+				}
+				
+			});
+			
+			
+		}
+		XmlHandler handler = new XmlHandler();
+		rec = handler.getInformation();
+		if(!rec.places.isEmpty()){
+			flag2 = true;
+		} else flag2 = false;
+		point1 = new LatLng(0,0);
+		float zoom = 15;
+		if( myLocation!=null) point1 = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
+		//if( myLocation!=null) zoom = getMapZoom(point1.longitude, point2.longitude);
+		addMarkers();
+		
+		//googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(point1, zoom));
+		
+		mNavDrawer.openDrawer(drawerList);
+		
+		//.icon(BitmapDescriptorFactory.fromResource(R.drawable.pin));;
+
+		/*Listener for location change*/
+		googleMap.setOnMyLocationChangeListener(new OnMyLocationChangeListener() {
+
+		    @Override
+		    public void onMyLocationChange(Location location){
+		    	
+		    	myLocation.setLatitude(location.getLatitude());
+		    	myLocation.setLongitude(location.getLongitude());
+		    	
+		    	float[] results = new float[10];
+		    	Float mod = 1000f;
+		    	for(final Place p: rec.places){
+		    		Location.distanceBetween(location.getLatitude(), location.getLongitude(),
+		    				p.getLatitude(), p.getLongitude(), results);
+		    		Float acc = location.getAccuracy();
+		    		 Log.i("Accuracy", acc.toString());
+		    		if(results!=null){ mod = Math.abs(results[0]);}
+		    		if(mod <= (acc+100) && p.isCheckinAvailable()){
+		    			p.setCheckinAvailable(false);
+		    			
+		    			//TODO change the image of ImageButton
+		    			//showCheckInDialogue(p);
+		    			
+		    			/*if(pop.isShowing()){
+		    				ImageButton cib = (ImageButton)findViewById(R.id.checkin_button);
+			    			TextView title = (TextView)findViewById(R.id.info_title);
+		    				if(title.getText().toString().equalsIgnoreCase(p.getName() )){
+		    					cib.setImageResource(R.drawable.ic_check_in);
+		    				}
+		    				
+		    			}*/
+		    			
+		    		}
+				}
+		    }
+		});
+		
+		/*Adding a Adapter for the Marker Window*/
+		InfoAdapter infoAdapt = new InfoAdapter(this);
+		googleMap.setInfoWindowAdapter(infoAdapt);
+		
+//		/*Adding a new review*/
+//		LayoutInflater li2 = getLayoutInflater();
+//		final View addRev = li2.inflate(R.layout.add_review, null);
+		
+		googleMap.setOnMarkerClickListener(new OnMarkerClickListener(){
+
+			@Override
+			public boolean onMarkerClick(final Marker mk) {
+				if(pop.isShowing()){
+					LayoutInflater li = getLayoutInflater();
+			        final View view = li.inflate(R.layout.display_info, null);
+			        TextView title = (TextView)view.findViewById(R.id.info_title);
+			        title.setText(mk.getTitle());
+			       // TextView address = (TextView)view.findViewById(R.id.info_address);
+			        //address.setText(getPlaceAdress(mk.getTitle()));
+			        TextView phone = (TextView)view.findViewById(R.id.info_phone);
+			        phone.setText(getPlacePhone(mk.getTitle()));
+			        RatingBar rb = (RatingBar)view.findViewById(R.id.info_ratingBar);
+			        Float rating = getPlaceRating(mk.getTitle()); 
+			        rb.setRating(rating);
+			        rb.setIsIndicator(true);
+			        ArrayList<Review> rev = getPlaceReviews(mk.getTitle());
+			       
+			        /*Listener for the check in button*/
+			        float[] results = new float[10];
+			        ImageButton checkinImage = (ImageButton)view.findViewById(R.id.checkin_button);
+			        Float mod = 1000f;
+			    	Place pl = getPlace(mk.getTitle());
+			    	Location.distanceBetween(myLocation.getLatitude(), myLocation.getLongitude(),
+			   				pl.getLatitude(), pl.getLongitude(), results);
+			    	if(results!=null){ mod = Math.abs(results[0]);}
+			        if(mod <= myLocation.getAccuracy()+100){
+			    		checkinImage.setImageResource(R.drawable.ic_check_in);
+			   		}
+			        checkinImage.setOnClickListener(new OnClickListener(){
+
+						@Override
+						public void onClick(View v) {
+							float[] results = new float[10];
+							Float mod = 1000f;
+					    	Place p = getPlace(mk.getTitle());
+					    	Location.distanceBetween(myLocation.getLatitude(), myLocation.getLongitude(),
+					   				p.getLatitude(), p.getLongitude(), results);
+					    	if(results!=null){ mod = Math.abs(results[0]);}
+					    	if(mod <= myLocation.getAccuracy()+100){
+					    		showCheckInDialogue(p);
+					   		}
+					   		else showCheckInOff();
+					  						
+						}
+			        	
+			        });
+					
+			        
+			        /*Send notification type:"click"*/
+			        Place p = new Place();
+			        p = getPlace(mk.getTitle());
+			        //RequestHandler req = new RequestHandler();
+			        //RequestHandler.createNotification(p, "click", myLocation.getLatitude(), myLocation.getLongitude(), null, getApplicationContext());
+			        MainActivity.notifyXML = RequestHandler.getEventNotification(p, "click", myLocation.getLatitude(), myLocation.getLongitude(), null, getApplicationContext());
+			        new EventSend().execute(MainActivity.this);
+	    			///////////////////////////////////////////////////////////
+			        
+			        rb.setOnRatingBarChangeListener(new OnRatingBarChangeListener(){
+
+						@Override
+						public void onRatingChanged(RatingBar ratingBar,
+								float rating, boolean fromUser) {
+							/*TODO code for showing dialog for comments*/
+							
+						}
+			        	 
+			        });
+			        
+			        /*Setting up an adapter for the listView*/
+			        ArrayList<String> comm = new ArrayList<String>();
+			        ArrayList<String> unique = new ArrayList<String>();
+			        ArrayList<Review> revArray = getPlaceReviews(mk.getTitle());
+			        ArrayList<Review> revAux = new ArrayList<Review>();
+			        for(Review r: rev ){
+			        	
+			        	if(!r.getComment().contains("\n ") && !r.getComment().isEmpty()){
+			        		revAux.add(r);
+			        		comm.add(r.comment);
+			        	}
+			        }
+			        
+			        ReviewListAdapter adapter;
+			        if(revAux.isEmpty()) {
+			        	unique.add("");
+			        	adapter = new ReviewListAdapter(view.getContext(), R.layout.no_reviews, 
+			        		R.id.listReviews, revAux, unique);
+			        }
+			        else{
+			        	adapter = new ReviewListAdapter(view.getContext(), R.layout.review_row,
+			        			R.id.listReviews, revAux, comm);
+			        }
+			        		
+			        
+			        listReviews = (ListView)view.findViewById(R.id.listReviews);
+			        listReviews.setAdapter(adapter);
+			        /* *** */
+			        
+			        /*Switch Control for showing reviews*/
+			        Switch sw = (Switch)view.findViewById(R.id.switchReviews);
+			        if(sw.isActivated()){
+			        	listReviews.setVisibility(View.VISIBLE);
+			        }
+			        else{
+			        	listReviews.setVisibility(View.GONE);
+			        }
+			        sw.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+			            	if(isChecked){
+					        	listReviews.setVisibility(View.VISIBLE);
+					        }
+					        else{
+					        	listReviews.setVisibility(View.GONE);
+					        }
+			            }
+			        });
+			        
+			        if(pop.isShowing()){
+			        	pop.dismiss();
+			        }
+			        pop = new PopupWindow(view,LayoutParams.WRAP_CONTENT,  
+		                     LayoutParams.WRAP_CONTENT);
+			        pop.showAtLocation(view, Gravity.BOTTOM, 10, 10);
+			        ImageButton dirButton = (ImageButton)view.findViewById(R.id.direcButton);
+					dirButton.setOnClickListener(new OnClickListener(){
+
+						@Override
+						public void onClick(View v) {
+							/*Request Route and notify whenever the directions button is tapped*/
+							
+							/*Send notification type:"direction"*/
+					        Place p = new Place();
+					        p = getPlace(mk.getTitle());
+					        //RequestHandler req = new RequestHandler();
+					        //RequestHandler.createNotification(p, "direction", myLocation.getLatitude(), myLocation.getLongitude(), null, getApplicationContext());
+					        MainActivity.notifyXML = RequestHandler.getEventNotification(p, "direction", myLocation.getLatitude(), myLocation.getLongitude(), null, getApplicationContext());
+					        new EventSend().execute(MainActivity.this);
+					        ///////////////////////////////////////////////////////////
+					        /*request route*/
+					        requestRoute(mk);
+						}
+					});
+					
+
+					ImageButton revButton = (ImageButton)view.findViewById(R.id.addRev_Button);
+					revButton.setOnClickListener(new OnClickListener(){
+
+						@Override
+						public void onClick(View v) {
+							addReview(v,mk);
+
+						}
+						
+					});
+
+					
+			        
+				}
+				return false;
+			}
+			
+		});
+		googleMap.setOnInfoWindowClickListener(new OnInfoWindowClickListener(){
+
+			
+			@Override
+			public void onInfoWindowClick(final Marker mk) {
+				LayoutInflater li = getLayoutInflater();
+		        final View view = li.inflate(R.layout.display_info, null);
+		        TextView title = (TextView)view.findViewById(R.id.info_title);
+		        title.setText(mk.getTitle());
+		        //TextView address = (TextView)view.findViewById(R.id.info_address);
+		        //address.setText(getPlaceAdress(mk.getTitle()));
+		        TextView phone = (TextView)view.findViewById(R.id.info_phone);
+		        phone.setText(getPlacePhone(mk.getTitle()));
+		        RatingBar rb = (RatingBar)view.findViewById(R.id.info_ratingBar);
+		        Float rating = getPlaceRating(mk.getTitle()); 
+		        rb.setRating(rating);
+		        rb.setIsIndicator(true);
+		        ArrayList<Review> rev = getPlaceReviews(mk.getTitle());
+		       
+		        /*Listener for the check in button*/
+		        ImageButton checkinImage = (ImageButton)view.findViewById(R.id.checkin_button);
+		        float[] results = new float[10];
+				Float mod = 1000f;
+		    	Place pl = getPlace(mk.getTitle());
+		    	Location.distanceBetween(myLocation.getLatitude(), myLocation.getLongitude(),
+		   				pl.getLatitude(), pl.getLongitude(), results);
+		    	if(results!=null){ mod = Math.abs(results[0]);}
+		        if(mod <= myLocation.getAccuracy()+100){
+		    		checkinImage.setImageResource(R.drawable.ic_check_in);
+		   		}
+		        
+		        checkinImage.setOnClickListener(new OnClickListener(){
+
+					@Override
+					public void onClick(View v) {
+						float[] results = new float[10];
+						Float mod = 1000f;
+				    	Place p = getPlace(mk.getTitle());
+				    	Location.distanceBetween(myLocation.getLatitude(), myLocation.getLongitude(),
+				   				p.getLatitude(), p.getLongitude(), results);
+				    	if(results!=null){ mod = Math.abs(results[0]);}
+				    	if(mod <= myLocation.getAccuracy()+100){
+				    		showCheckInDialogue(p);
+				   		}
+				   		else showCheckInOff();
+				  						
+					}
+		        	
+		        });
+				
+		        
+		        /*Send notification type:"click"*/
+		        Place p = new Place();
+		        p = getPlace(mk.getTitle());
+		        //RequestHandler req = new RequestHandler();
+		        //RequestHandler.createNotification(p, "click", myLocation.getLatitude(), myLocation.getLongitude(), null, getApplicationContext());
+		        MainActivity.notifyXML = RequestHandler.getEventNotification(p, "click", myLocation.getLatitude(), myLocation.getLongitude(), null, getApplicationContext());
+		        new EventSend().execute(MainActivity.this);
+    			///////////////////////////////////////////////////////////
+		        
+		        rb.setOnRatingBarChangeListener(new OnRatingBarChangeListener(){
+
+					@Override
+					public void onRatingChanged(RatingBar ratingBar,
+							float rating, boolean fromUser) {
+						/*TODO code for showing dialog for comments*/
+						
+					}
+		        	 
+		        });
+		        
+		        /*Setting up an adapter for the listView*/
+		        ArrayList<String> comm = new ArrayList<String>();
+		        ArrayList<String> unique = new ArrayList<String>();
+		        ArrayList<Review> revAux = new ArrayList<Review>();
+		        for(Review r: rev ){
+		        	
+		        	if(!r.getComment().contains("\n ") && !r.getComment().isEmpty()){
+		        		revAux.add(r);
+		        		comm.add(r.comment);
+		        	}
+		        }
+		        
+		        ReviewListAdapter adapter;
+		        if(revAux.isEmpty()) {
+		        	unique.add("");
+		        	adapter = new ReviewListAdapter(view.getContext(), R.layout.no_reviews, 
+		        		R.id.listReviews, revAux, unique);
+		        }
+		        else{
+		        	adapter = new ReviewListAdapter(view.getContext(), R.layout.review_row,
+		        			R.id.listReviews, revAux, comm);
+		        }
+		        
+		        listReviews = (ListView)view.findViewById(R.id.listReviews);
+		        listReviews.setAdapter(adapter);
+		        /* *** */
+		        
+		        /*Switch Control for showing reviews*/
+		        Switch sw = (Switch)view.findViewById(R.id.switchReviews);
+		        if(sw.isActivated()){
+		        	listReviews.setVisibility(View.VISIBLE);
+		        }
+		        else{
+		        	listReviews.setVisibility(View.GONE);
+		        }
+		        sw.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+		            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+		            	if(isChecked){
+				        	listReviews.setVisibility(View.VISIBLE);
+				        }
+				        else{
+				        	listReviews.setVisibility(View.GONE);
+				        }
+		            }
+		        });
+		        
+		        if(pop.isShowing()){
+		        	pop.dismiss();
+		        }
+		        pop = new PopupWindow(view,LayoutParams.WRAP_CONTENT,  
+	                     LayoutParams.WRAP_CONTENT);
+		        pop.showAtLocation(view, Gravity.BOTTOM, 10, 10);
+		        ImageButton dirButton = (ImageButton)view.findViewById(R.id.direcButton);
+				dirButton.setOnClickListener(new OnClickListener(){
+
+					@Override
+					public void onClick(View v) {
+						/*Request Route and notify whenever the directions button is tapped*/
+						
+						/*Send notification type:"direction"*/
+				        Place p = new Place();
+				        p = getPlace(mk.getTitle());
+				        //RequestHandler req = new RequestHandler();
+				        //RequestHandler.createNotification(p, "direction", myLocation.getLatitude(), myLocation.getLongitude(), null, getApplicationContext());
+				        MainActivity.notifyXML = RequestHandler.getEventNotification(p, "direction", myLocation.getLatitude(), myLocation.getLongitude(), null, getApplicationContext());
+				        new EventSend().execute(MainActivity.this);
+				        ///////////////////////////////////////////////////////////
+				        /*request route*/
+				        requestRoute(mk);
+					}
+				});
+				
+
+				ImageButton revButton = (ImageButton)view.findViewById(R.id.addRev_Button);
+				revButton.setOnClickListener(new OnClickListener(){
+
+					@Override
+					public void onClick(View v) {
+						addReview(v,mk);
+
+					}
+					
+				});
+				
+		        googleMap.setOnMapClickListener(new OnMapClickListener() {
+
+			        @Override
+			        public void onMapClick(LatLng point) {
+			        	pop.dismiss();
+			        }
+			    });
+		        
+			}
+			
+		});
+		
+				
+	}//END of the onCreate Method
+	
+	@Override
+	protected void onResume(){
+		super.onResume();
+		mapReposition();
+        
+	}
+	
+	public void mapReposition(){
+		final View fMap = (View)findViewById(R.id.map);
+		fMap.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener(){
+
+			@Override
+			public void onGlobalLayout() {
+				fMap.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+				ZoomControl zControl = new ZoomControl(rec.places, point1);
+				
+		        if(flag2==true){
+		        	googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(
+		        			zControl.zoomMap(), fMap.getWidth(), fMap.getHeight(), 100));
+		        }
+		        if(flag2==false){
+		        	googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(point1, 15));
+		        }
+		        		
+			}
+			
+		});
+	}
+	
+	
+	
+	public static void addMarkers(){
+		
+		
+		for(Place p: rec.getPlaces()){
+			
+			Double lat = p.getLatitude();
+			Double lon = p.getLongitude();
+			String name = p.getName();
+			
+			MarkerOptions m = new MarkerOptions().position(new LatLng(lat,lon)).title(name);
+			googleMap.addMarker(m);
+			
+		}
+	}
+	
+	public void showCheckInDialogue(final Place p){
+		
+		//if(!checkin.isShowing()){
+		AlertDialog checkin = new AlertDialog.Builder(MainActivity.this)
+		    .setTitle(MainActivity.this.getString(R.string.checkin_available))
+		    .setMessage(""+MainActivity.this.getString(R.string.checkin_confirm)+" "+p.getName()+"?")
+		    .setPositiveButton(MainActivity.this.getString(R.string.checkin_button), new DialogInterface.OnClickListener() {
+		        public void onClick(DialogInterface dialog, int which) {
+		        	MainActivity.notifyXML = RequestHandler.getEventNotification(p, "checkin", MainActivity.myLocation.getLatitude(), MainActivity.myLocation.getLongitude(), null, getApplicationContext());
+		        	new EventSend().execute(MainActivity.this);
+		        	Toast toast = Toast.makeText(getApplicationContext(), R.string.checkin_done, 10);
+					toast.show();
+					
+		        	///////////////////////////////////////////////////
+		        	
+		        }
+		     })
+		    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+		        public void onClick(DialogInterface dialog, int which) { 
+		            // do nothing
+		        }
+		     })
+		    .setIcon(getResources().getIdentifier("ic_check_in", "drawable", "com.icmc.ic.bixomaps"))
+		     .show();
+
+		//}
+		
+	}
+	
+	public void showCheckInOff(){
+		
+		checkin = new AlertDialog.Builder(MainActivity.this)
+		    .setTitle(MainActivity.this.getString(R.string.checkin_unavailable))
+		    .setMessage(""+MainActivity.this.getString(R.string.checkin_not_possible))
+		    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+		        public void onClick(DialogInterface dialog, int which) {
+		        	// do nothing
+		        }
+		     })
+		   .setIcon(getResources().getIdentifier("ic_check_un", "drawable", "com.icmc.ic.bixomaps")).create();
+		    if(!checkin.isShowing()){
+		    	checkin.show();
+		    }
+		
+
+	}
+	
+	public void requestRoute(final Marker mk){
+		
+		
+		RouteRequest rReq = new RouteRequest(new AsyncResponse() {
+			/*Getting the results from the asyncTask
+			 * [0]duration, [1]warnings, [2]copyrights*/
+			@Override
+			public Void processFinish(String[] result) {
+				LayoutInflater l = getLayoutInflater();
+		        final View routeView = l.inflate(R.layout.route_pop, null);
+		        TextView warn = (TextView)routeView.findViewById(R.id.route_warnings);
+		        TextView dur = (TextView)routeView.findViewById(R.id.route_duration);
+		        TextView rMode = (TextView)routeView.findViewById(R.id.route_mode);
+		        TextView copy = (TextView)routeView.findViewById(R.id.route_copyrights);
+		        ImageButton image = (ImageButton)routeView.findViewById(R.id.modeImage);
+		        if(mode.equalsIgnoreCase("driving")){
+		        	image.setImageResource(R.drawable.ic_car);
+		        	rMode.setText(getResources().getString(R.string.route_mode_driving));
+		        }
+		        if(mode.equalsIgnoreCase("walking")){
+		        	image.setImageResource(R.drawable.ic_walk);
+		        	rMode.setText(getResources().getString(R.string.route_mode_walking));
+		        }
+		        dur.setText(result[0]);
+		        warn.setText(result[1]);
+		        copy.setText(result[2]); 
+		        pop = new PopupWindow(routeView,LayoutParams.WRAP_CONTENT,  
+		                LayoutParams.WRAP_CONTENT);
+		        pop.showAtLocation(routeView, Gravity.BOTTOM, 10, 10);
+		        image.setOnClickListener(new OnClickListener(){
+
+				@Override
+				public void onClick(View v) {
+					toggleMode();
+					pop.dismiss();
+					requestRoute(mk);
+				}
+		   	
+		   });
+				return null;
+			}
+		});
+		String url = rReq.urlBuilder(myLocation.getLatitude(),myLocation.getLongitude(),
+				mk.getPosition().latitude,mk.getPosition().longitude,
+				getApplicationContext().getString(R.string.language),mode);
+		if(pop.isShowing()){
+			pop.dismiss(); 
+		}
+		ConnectionDetector checkConnection = new ConnectionDetector(getApplicationContext());
+		/*Check Internet connection before httpPost*/
+		if(checkConnection.isConnected()){
+			Toast toast = Toast.makeText(getApplicationContext(),""+ 
+				getApplicationContext().getString(R.string.finding_route), Toast.LENGTH_LONG);
+			toast.setDuration(1500);
+			toast.show();
+			rReq.execute(url);
+			
+		}else{
+			Toast toast = Toast.makeText(getApplicationContext(),""+ 
+					getApplicationContext().getString(R.string.no_connection), Toast.LENGTH_LONG);
+				toast.setDuration(1500);
+				toast.show();
+				
+		}
+				
+	}
+	
+	public static void drawRoute(ArrayList<LatLng> directionPoints){
+		
+	    PolylineOptions rectLine = new PolylineOptions().width(12).color(
+	            Color.BLUE);
+	    for(LatLng l: directionPoints) {
+	    	rectLine.add(l);
+	    }
+	    googleMap.clear();
+	    addMarkers();
+	    googleMap.addPolyline(rectLine);
+	    
+	}
+	
+	public static void setCopyrights(String copy){
+		copyrights = copy;            
+	};
+	
+	public static void setDuration(String dur){
+		duration = dur;            
+	};
+	
+	public static void setWarnings(String warn){
+		warnings = warn; 
+	};
+	
+	/*set the back button to dismiss the popUp when it is showing*/
+	@Override
+	public void onBackPressed(){
+		
+		if(pop.isShowing()){
+			//final ImageButton info = (ImageButton)findViewById(R.id.info_button);
+			//final Animation animShake = AnimationUtils.loadAnimation(this, R.anim.shake);
+			pop.dismiss();
+//			if(info.isShown()){
+//				info.startAnimation(animShake);
+			//}
+		}
+		else{
+			super.onBackPressed();
+		}
+	}
+	
+	public void showSoftKeyboard(View view){
+	    if(view.requestFocus()){
+	        InputMethodManager imm =(InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+	        imm.showSoftInput(view,InputMethodManager.SHOW_IMPLICIT);
+	    }
+	}
+	
+	public void hideSoftKeyboard(View view){
+		  InputMethodManager imm =(InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+		  imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+	}
+	
+	public void showRouteInfo(final Marker mk){
+		LayoutInflater l = getLayoutInflater();
+        final View routeView = l.inflate(R.layout.route_pop, null);
+        
+		//final ImageButton info = (ImageButton)findViewById(R.id.info_button);
+		//final Animation animShake = AnimationUtils.loadAnimation(this, R.anim.shake);
+		
+		// TextView dur = (TextView)routeView.findViewById(R.id.route_duration);
+        //TextView warn = (TextView)routeView.findViewById(R.id.route_warnings);
+        TextView copy = (TextView)routeView.findViewById(R.id.route_copyrights);
+        ImageButton image = (ImageButton)routeView.findViewById(R.id.modeImage);
+        if(mode.equalsIgnoreCase("driving"))image.setImageResource(R.drawable.ic_car);
+        if(mode.equalsIgnoreCase("walking"))image.setImageResource(R.drawable.ic_walk);
+		copy.setText(copyrights); 
+		//dur.setText(duration);
+		//warn.setText(warnings);
+		//if(duration.isEmpty()){ dur.setText(""+getString(R.string.route_duration)+" --- ");}
+			pop = new PopupWindow(routeView,LayoutParams.WRAP_CONTENT,  
+	                 LayoutParams.WRAP_CONTENT);
+			pop.setAnimationStyle(R.style.AnimationPopup);
+			//info.setVisibility(View.VISIBLE);
+			pop.showAtLocation(routeView, Gravity.BOTTOM, 10, 10);
+	    image.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View v) {
+				toggleMode();
+				requestRoute(mk);
+			}
+	    	
+	    });
+		
+		
+	}
+	
+	public void addReview(View view, Marker mk) {
+		  Intent intent = new Intent(this, RatingActivity.class);
+		  intent.putExtra("mk", mk.getTitle());
+		  if(pop.isShowing()) pop.dismiss();
+		  startActivity(intent);
+	}
+	
+	public void showSettings() {
+		  Intent intent = new Intent(this, SettingsActivity.class);
+		  if(pop.isShowing()) pop.dismiss();
+		  startActivity(intent);
+	}
+	
+	public static String getPlaceAdress(String name){
+		for(Place p: rec.places){
+			if(p.getName().equals(name)){
+				return p.getAddress();
+			}
+		}
+		return null;
+		
+	}
+	
+	public static String getPlacePhone(String name){
+		for(Place p: rec.places){
+			if(p.getName().equals(name)){
+				return p.getPhone();
+			}
+		}
+		return null;
+		
+	}
+	
+	public static Float getPlaceRating(String name){
+		for(Place p: rec.places){
+			if(p.getName().equals(name)){
+				return p.getRating();
+			}
+		}
+		return null;
+		
+	}
+	
+	public ArrayList<Review> getPlaceReviews(String name){
+		ArrayList<Review> reviews;
+		for(Place p: rec.places){
+			if(p.getName().equals(name)){
+				return p.getReviews();
+			}
+		}
+		return null;
+		
+	}
+	
+	public static Place getPlace(String name){
+		for(Place p: rec.places){
+			if(p.getName().equals(name)){
+				return p;
+			}
+		}
+		return null;
+	}
+	
+	
+
+	@Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+         mDrawerToggle.syncState();
+    }
+	
+	
+	@Override
+	public void onNavigationDrawerItemSelected(int position) {
+		FragmentManager fragmentManager = getFragmentManager();
+		fragmentManager.beginTransaction().replace(R.id.container,
+				PlaceHolderFragment.newInstance(position + 1)).commit();
+			//.beginTransaction()
+				//.replace(R.id.container,
+					//PlaceholderFragment.newInstance(position + 1)).commit();
+		
+	}
+
+	public void onSectionAttached(int number) {
+		mTitle = getString(R.string.title_section1);
+	}
+
+	public void toggleMode() {
+		if(mode.equalsIgnoreCase("driving")){
+			mode = "walking";
+		}
+		else if(mode.equalsIgnoreCase("walking")){
+			mode = "driving";
+		}
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		int id = item.getItemId();
+	    if (mDrawerToggle.onOptionsItemSelected(item)) {
+		      return true;
+		    }
+	    if(id==R.id.open_about){
+        	openAbout();
+            return true;
+	    }
+	   /** if(id==R.id.open_settings){
+	    	showSettings();
+        	return true;
+	    }*/
+	    return super.onOptionsItemSelected(item);
+    }
+		
+
+	@Override
+	public Void processFinish(String[] result) {
+		return null;
+	}
+	
+	public void openAbout(){
+		AlertDialog about = new AlertDialog.Builder(MainActivity.this)
+	    .setTitle(MainActivity.this.getString(R.string.action_about))
+	    .setMessage(""+MainActivity.this.getString(R.string.about_message))
+	    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+	        public void onClick(DialogInterface dialog, int which) {
+	        	// do nothing
+	        }
+	     })
+	    .create();
+	    if(!about.isShowing()){
+	    	about.show();
+	    }
+	}
+	
+	public String getSelectedName() {
+		return selectedName;
+	}
+
+	public void setSelectedName(String selectedName) {
+		this.selectedName = selectedName;
+	}
+	
+
+	
+	
+	
+}

@@ -1,0 +1,44 @@
+package com.icmc.ic.bixomaps;
+
+import android.content.Context;
+import android.view.View;
+import android.widget.TextView;
+
+import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+
+/**
+ * List of categories that are supposed to show on the drawer menu
+ * Each name should be listed at res/values/strings.xml for the English Menu
+ * and at res/values-pt-rBr/strings.xml for the Portuguese Menu
+ *
+ * @author Thais Santos
+ * @version 1.0
+ * @since March 26, 2015
+ */
+
+public class InfoAdapter implements InfoWindowAdapter{
+
+	private static MainActivity _activity;
+	public InfoAdapter(MainActivity activity){
+		this._activity = activity;
+	}
+	@Override
+	public View getInfoContents(Marker m) {
+		 View view = _activity.getLayoutInflater().inflate(R.layout.info_adapter, null);
+		 
+         TextView title = (TextView) view.findViewById(R.id.info_window_title);
+         TextView address = (TextView) view.findViewById(R.id.info_window_address);
+         title.setText(m.getTitle());
+         address.setText(MainActivity.getPlaceAdress(m.getTitle()));
+         return view;
+	}
+
+	@Override
+	public View getInfoWindow(Marker arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

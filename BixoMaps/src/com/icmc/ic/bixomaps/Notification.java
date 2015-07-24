@@ -2,6 +2,11 @@ package com.icmc.ic.bixomaps;
 
 /**The Notification Class
  * 
+ * This class is a simple Java Class.
+ * As so, it has attributes, its setters and its getters.
+ * This one represents a notification and is used by the RequestHandler
+ * when it is necessary to send a notification of the user's behaviour to the server 
+ * 
  * @author Thais Santos
  * @version 1.0
  * @since January 27, 2015

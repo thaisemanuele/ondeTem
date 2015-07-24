@@ -1,15 +1,5 @@
 package com.icmc.ic.bixomaps;
 
-/**
- * XmlHandler
- * This class creates a folder on the user's SD card,
- * Get reviews from a given XML, and write XML files
- * 
- * @author Thais Santos
- * @version 1.0
- * @since February 24, 2015
- */
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -33,52 +23,25 @@ import org.xmlpull.v1.XmlSerializer;
 import android.os.Environment;
 import android.util.Xml;
 
+/**
+ * XmlHandler
+ * This class creates a folder on the user's SD card,
+ * Get reviews from a given XML, and write XML files
+ * 
+ * @author Thais Santos
+ * @version 1.0
+ * @since February 24, 2015
+ */
 public class XmlHandler {
 	
 	/*Folder's name on SD CARD */
 	public static String BM_TEST = "OndeTem";
 	
-	/*
-	 * TODO Validate message against given xsd
-	 *
-	private boolean validateMessage(Document inputMessage) 
-	{
-		// TODO validate message
-		SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-		Schema schema = null;
-
-		try 
-		{
-			schema = factory.newSchema(new File(appContext.getRealPath("/") + schemaFile));
-		} 
-		catch (SAXException e1) {
-			logger.error("Error creating schema for validation", e1);
-		}
-
-		Validator validator = schema.newValidator();
-
-		try 
-		{	// TODO validation failing due to namespace som prefix
-			// TODO change to validate(DOMSource,DOMResult);
-			validator.validate(new DOMSource(inputMessage));
-			return true;
-		} 
-		catch (SAXException e) {
-			logger.error("Error validating received event message: " + e.getMessage());
-		} 
-		catch (IOException e) {
-			logger.error("Error creating DOMSource from input message" + e.getMessage());
-		}
-		
-		return true;
-	}*/
-
-	/*Get information from xml*/
+	
+	/*Get information from Xml*/
 	public Recommendation getInformation(){
 		Document document = null;
 		Recommendation rec = new Recommendation();
-		//File file = getDir();
-		
 		
 		try {
 			
@@ -148,6 +111,7 @@ public class XmlHandler {
         return null;
     }
 	
+	/*Get the reviews from an XML Document*/
 	private ArrayList<Review> getReviewsFromDoc(Node node){
 		String test = new String();
 		ArrayList<Review> rev = new ArrayList<Review>();
@@ -181,6 +145,7 @@ public class XmlHandler {
 		return rev;
 	}
 	
+	/*Writes a recommendation to an XML*/
 	protected  void writeRecommendation(Request req){
 		XmlSerializer serializer = Xml.newSerializer();
 	    StringWriter writer = new StringWriter();
@@ -216,6 +181,7 @@ public class XmlHandler {
 	    } 
 	}
 	
+	/*Writes a notification to an XML*/
 	public void writeNotification(Notification note){
 
 		XmlSerializer serializer = Xml.newSerializer();
@@ -257,6 +223,7 @@ public class XmlHandler {
 
 	}
 	
+	/*Add to the XML the values according to the user's settings */
 	protected  void writeSettings(String place, String num){
 		XmlSerializer serializer = Xml.newSerializer();
 	    StringWriter writer = new StringWriter();
@@ -284,58 +251,8 @@ public class XmlHandler {
 	    } 
 	}
 
-		//
-		
-		/*
-		 * /*
-	 * Codigo DOM
-	 *
-DocumentBuilderFactory dbf  = DocumentBuilderFactory.newInstance();
-dbf.setValidating(true);
-DocumentBuilder db = dbf.newDocumentBuilder();
-db.setErrorHandler(new ErrorHandler() { ...});
-ClassLoader loader = ClassLoader.getSystemClassLoader();
-Document doc = db.parse(loader.getResourceAsStream("config.xml"));
-
-
-	/*
-	 * Validate message against given xsd
-	 *
-	private boolean validateMessage(Document inputMessage) 
-	{
-		// TODO validate message
-		SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-		Schema schema = null;
-
-		try 
-		{
-			schema = factory.newSchema(new File(appContext.getRealPath("/") + schemaFile));
-		} 
-		catch (SAXException e1) {
-			logger.error("Error creating schema for validation", e1);
-		}
-
-		Validator validator = schema.newValidator();
-
-		try 
-		{	// TODO validation faling due to namespace som prefix
-			// TODO change to validate(DOMSource,DOMResult);
-			validator.validate(new DOMSource(inputMessage));
-			return true;
-		} 
-		catch (SAXException e) {
-			logger.error("Error validating received event message: " + e.getMessage());
-		} 
-		catch (IOException e) {
-			logger.error("Error creating DOMSource from input message" + e.getMessage());
-		}
-		
-		return true;
-	}
-*/
-		
-	
-	
+			
+	/*Creates a new XML document*/
 	private static Document getDocument(String fileName){
 		
 		try {
@@ -343,25 +260,21 @@ Document doc = db.parse(loader.getResourceAsStream("config.xml"));
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			factory.setIgnoringComments(true);
 			factory.setIgnoringElementContentWhitespace(true);
-			//factory.setValidating(true);
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			return builder.parse(new InputSource(fileName));
 			
 		} catch (ParserConfigurationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (SAXException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
 	}
 	
 	
-	// Marcos: Get the XML data for the recommendation request
+	//Get the XML data for the recommendation request
 	public String createRecommendationRequestXMLdata(Request req){
 		
 		XmlSerializer serializer = Xml.newSerializer();
@@ -396,7 +309,7 @@ Document doc = db.parse(loader.getResourceAsStream("config.xml"));
 	    } 
 	}
 	
-	// Marcos: Get the XML data for the recommendation response
+	//Get the XML data for the recommendation response
 	public Recommendation getRecommendationFromResponseXMLdata(String xml){
 		
 		Document document = null;
@@ -448,7 +361,7 @@ Document doc = db.parse(loader.getResourceAsStream("config.xml"));
 		return rec;
 	}
 
-	// Marcos: Get the XML data for the event notification
+	//Get the XML data for the event notification
 	public String createEventNotificationXMLdata(Notification note){
 
 		XmlSerializer serializer = Xml.newSerializer();

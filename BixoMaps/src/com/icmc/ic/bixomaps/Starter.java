@@ -1,5 +1,14 @@
 package com.icmc.ic.bixomaps;
 
+import java.sql.Time;
+
+import android.content.Context;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.AsyncTask;
+import android.os.Bundle;
+
 /**
  * Starter Class
  * 
@@ -12,15 +21,6 @@ package com.icmc.ic.bixomaps;
  */
 
 
-import java.sql.Time;
-
-import android.content.Context;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.AsyncTask;
-import android.os.Bundle;
-
 public class Starter extends AsyncTask<String, Void, Double[]> {
 	
 	AsyncResponse ready;
@@ -31,6 +31,8 @@ public class Starter extends AsyncTask<String, Void, Double[]> {
 	 private static Location location;
 	LocationProvider loc;
 	
+	/*The class' constructor
+	 * ready, of type AsyncResponse is used when the process is ready to present results*/
 	public Starter(Context context, AsyncResponse ready){
 		super();
 		this.context = context;
@@ -38,6 +40,8 @@ public class Starter extends AsyncTask<String, Void, Double[]> {
 		this.loc = new LocationProvider(context); 
 	}
 	
+	/*This are the tasks to be done in background,
+	 * asynchronously, at the same time the StartScreenActivity is running */
 	@Override
 	protected Double[] doInBackground(String... url) {
 		Double[] result = new Double[3];

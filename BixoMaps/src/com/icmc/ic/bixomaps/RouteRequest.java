@@ -1,16 +1,5 @@
 package com.icmc.ic.bixomaps;
 
-/**
- * RouteRequest
- * 
- * This class works asynchronously within the main activity
- * and replies once the request is ready
- * 
- * @author Thais Santos
- * @version 1.0
- * @since March 19, 2015
- */
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -44,13 +33,23 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
+/**
+ * RouteRequest
+ * 
+ * This class works asynchronously within the main activity
+ * and replies once the request is ready
+ * 
+ * @author Thais Santos
+ * @version 1.0
+ * @since March 19, 2015
+ */
 public class RouteRequest extends AsyncTask<String, Void, String[]> {
 	
 	ArrayList<LatLng> list;
 	String duration = new String();
 	String warnings = new String();
 	String copyrights = new String();
-	AsyncResponse deliver;
+	AsyncResponse deliver; /* used to deliver the results*/
 	
 	public RouteRequest(AsyncResponse deliver) {
 		super();
@@ -77,10 +76,8 @@ public class RouteRequest extends AsyncTask<String, Void, String[]> {
                 Document doc = builder.parse(is);
                 return doc;
 			} catch (SAXException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (ParserConfigurationException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
@@ -100,7 +97,6 @@ public class RouteRequest extends AsyncTask<String, Void, String[]> {
 	 */
 	public String urlBuilder (double originLat, double originLon, double destinLat, double destinLon, String lang, String mode){
         
-		//StringBuilder url = new StringBuilder();
 		String url = null;
 		try {
 			if(mode.equals("walking")){
@@ -125,7 +121,6 @@ public class RouteRequest extends AsyncTask<String, Void, String[]> {
 			}
 					
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
        
@@ -220,6 +215,7 @@ public class RouteRequest extends AsyncTask<String, Void, String[]> {
 	    return listGeopoints;
 	}
 	
+	/*Return the node Index*/
 	private int getNodeIndex(NodeList nl, String nodename) {
 	    for (int i = 0; i < nl.getLength(); i++) {
 	        if (nl.item(i).getNodeName().equals(nodename))
@@ -228,6 +224,7 @@ public class RouteRequest extends AsyncTask<String, Void, String[]> {
 	    return -1;
 	}
 	
+	/*gets an encoded string and decodes it into latitude and longitude points*/
 	private ArrayList<LatLng> decodePoly(String encoded) {
 	    ArrayList<LatLng> poly = new ArrayList<LatLng>();
 	    int index = 0, len = encoded.length();
@@ -285,10 +282,8 @@ public class RouteRequest extends AsyncTask<String, Void, String[]> {
 	        		result[2] = copyrights;
 	               
 				} catch (SAXException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (ParserConfigurationException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 
@@ -303,7 +298,7 @@ public class RouteRequest extends AsyncTask<String, Void, String[]> {
 
 	}
 	
-	/*Replies to main activity*/
+	/*uses the deliver to reply to main activity*/
 	@Override
     protected void onPostExecute(String[] result) {
 		MainActivity.drawRoute(list);

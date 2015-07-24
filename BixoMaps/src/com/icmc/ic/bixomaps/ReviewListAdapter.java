@@ -1,16 +1,5 @@
 package com.icmc.ic.bixomaps;
 
-/**
- * ReviewListAdapter
- * This class works as an adapter for the Review List,
- * changing the list for an image followed by a comment
- *
- * @author Thais Santos
- * @version 1.0
- * @since March 24, 2015
- */
-
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +16,15 @@ import android.widget.RatingBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+/**
+ * ReviewListAdapter
+ * This class works as an adapter for the Review List,
+ * changing the list items for an image followed by a comment
+ *
+ * @author Thais Santos
+ * @version 1.0
+ * @since March 24, 2015
+ */
 public class ReviewListAdapter extends ArrayAdapter<String> {
 
 	private final Context context;
@@ -34,6 +32,8 @@ public class ReviewListAdapter extends ArrayAdapter<String> {
 	private List<Review> revList = new ArrayList<Review>();
 	
 
+	/*This is the adapter constructor
+	 * the lt contains the reviews, and the objects controls how many objects will be show*/
 	public ReviewListAdapter(Context context, int resource, int textViewResourceId,
 			List<Review> lt, List<String> objects) {
 		super(context, resource, textViewResourceId, objects);
@@ -42,10 +42,9 @@ public class ReviewListAdapter extends ArrayAdapter<String> {
 		this.revList =  lt;
 	}
 
-	
+	/*Need to Override the getView method to create a personalised view*/
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		//return super.getView(position, convertView, parent);
 		LayoutInflater inflater = (LayoutInflater) context
 		        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		    View rowView = inflater.inflate(R.layout.review_row, parent, false);

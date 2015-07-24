@@ -2,12 +2,17 @@ package com.icmc.ic.bixomaps;
 
 /** The Review Class
  * 
+ * This class is a simple Java Class.
+ * As so, it has attributes, its setters and its getters.
+ * This one represents a Review, added by the user, about a place one wants to add a review
+ * 
  * @author Thais Santos
  * @version 1.0
  * @since January 27, 2015
  * 
  * */
 public class Review {
+	
 	/*Attributes*/
 	String id;
 	String time;
@@ -18,9 +23,9 @@ public class Review {
 	
 	
 	
-	/**
-	 * Getters and Setters
-	 */
+/**
+* Getters and Setters
+*/
 	public String getId() {
 		return id;
 	}

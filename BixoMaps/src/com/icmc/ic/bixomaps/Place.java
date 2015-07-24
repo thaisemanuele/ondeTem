@@ -4,6 +4,11 @@ import java.util.ArrayList;
 
 /** The Place class
  * 
+ * This class is a simple Java Class.
+ * As so, it has attributes, its setters and its getters.
+ * This one represents a place, like a cafeteria, a museum or a school
+ * Those are the places the user is going to check in to. 
+ * 
  * @author Thais Santos
  * @version 1.0
  * @since January 27, 2015

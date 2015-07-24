@@ -2,6 +2,14 @@ package com.icmc.ic.bixomaps;
 
 /** The Request Class 
  * 
+ * This class is a simple Java Class.
+ * As so, it has attributes, its setters and its getters.
+ * This one represents a request, with the category chosen by the user
+ * The request is sent to the server to request places to be shown on the map.
+ * Also, this one has a constructor that set the category requested and the preferences 
+ * (if there are any)
+ * 
+ * 
  * @author Thais Santos
  * @version 1.0
  * @since January 27, 2015

@@ -9,7 +9,15 @@ import android.view.ViewGroup;
 
 
 /**
- * A placeholder fragment containing a simple view.
+ * This class is a placeholder fragment containing a simple view.
+ * it was created automatically with the Drawer
+ * So far, only one fragment is used in the application (the one the map appears)
+ * Another fragment can be added in the elapse of the development  
+ * 
+ * @author Thais Santos
+ * @version 1.0
+ * @since October 01, 2014
+ * 
  */
 public class PlaceHolderFragment extends Fragment {
     /**

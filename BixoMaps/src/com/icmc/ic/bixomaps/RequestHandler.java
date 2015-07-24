@@ -18,6 +18,8 @@ import android.text.format.Time;
 
 public class RequestHandler {
 
+	/*Uses the category chosen, the user's position and the context (the Activity) to create a request
+	 * and write it to a xml*/
 	public static void createRequest(String category, Double lat, Double lon, Context c){
 		XmlHandler xml= new XmlHandler();
 		Request request = new Request();
@@ -35,6 +37,9 @@ public class RequestHandler {
 		xml.writeRecommendation(request);
 	}
 	
+	/*Uses the place , the notification type, the user's position, the review added and the context (the Activity)
+	 * to create a notification
+	 * and write it to a xml*/
 	public static void createNotification(Place p, String type,  Double lat, Double lon, Review rev, Context c){
 		
 		XmlHandler xml= new XmlHandler();
@@ -64,7 +69,7 @@ public class RequestHandler {
 		
 	}
 	
-	//Marcos: Get the recommendation request with the data that will be send to the web server
+	//Get the recommendation request with the data that will be send to the web server
 		public static String getRecommendationRequest(String category, Double lat, Double lon, Context c){
 			XmlHandler xml= new XmlHandler();
 			Request request = new Request();
@@ -82,7 +87,7 @@ public class RequestHandler {
 			return xml.createRecommendationRequestXMLdata(request);
 		}
 		
-		//Marcos: Get the event notification with the data that will be send to the web server
+		// Get the event notification with the data that will be send to the web server
 		public static String getEventNotification(Place p, String type,  Double lat, Double lon, Review rev, Context c){
 			
 			XmlHandler xml= new XmlHandler();

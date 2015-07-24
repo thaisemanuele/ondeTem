@@ -1,15 +1,5 @@
 package com.icmc.ic.bixomaps;
 
-/**
- * SettingsActivity
- * This is the activity for displaying the app settings
- *
- * @author Thais Santos
- * @version 1.0
- * @since April 06, 2015
- */
-
-
 import java.util.ArrayList;
 
 import android.app.Activity;
@@ -24,8 +14,19 @@ import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 
+/**
+ * SettingsActivity
+ * This is the activity for displaying the app settings
+ *
+ * @author Thais Santos
+ * @version 1.0
+ * @since April 06, 2015
+ */
+
+
 public class SettingsActivity extends Activity {
 
+	/*The onCreate method, common in an activity class*/
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -50,6 +51,7 @@ public class SettingsActivity extends Activity {
 	    numSpin.setAdapter(nAdapter);
 	    
 	    Button save = (Button)findViewById(R.id.settings_confirm);
+	    
 	    /*Save button listener*/
 	    save.setOnClickListener(new OnClickListener(){
 
@@ -60,7 +62,7 @@ public class SettingsActivity extends Activity {
 				XmlHandler settingsXml = new XmlHandler();
 				settingsXml.writeSettings(place, num);
 				Toast toast = Toast.makeText(getApplicationContext(), R.string.settings_done, 10);
-				toast.show();
+				toast.show(); /*Confirmation of settings changed*/
 				finish();
 			}
 	    	

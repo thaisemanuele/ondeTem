@@ -17,10 +17,16 @@ import android.view.View;
 import android.widget.Toast;
 
 /**
- * An example full-screen activity that shows and hides the system UI (i.e.
+ * StartScreenActivity
+ * This activity is a full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
- * 
  * @see SystemUiHider
+ * Basically, it shows the loading View, while the app tries to get the users' location
+ * 
+ * @author Thais Santos
+ * @version 2.0
+ * @since October 01, 2014
+ * 
  */
 public class StartScreenActivity extends Activity {
 	/**
@@ -118,7 +124,7 @@ public class StartScreenActivity extends Activity {
 	}
 	
 	
-	/*Same operation as on the onCreate Method*/
+	/*Same operation as on the onCreate Method, now when the app resumes*/
 	protected void onResume(Bundle savedInstanceState) {
 		super.onResume();
 
@@ -134,6 +140,7 @@ public class StartScreenActivity extends Activity {
 		Starter start = new Starter(context,
 				new AsyncResponse(){
 
+			/*Handles the response*/
 			@Override
 			public Void processFinish(String[] result) {
 				if(result[0].equalsIgnoreCase("0.0")){
@@ -148,8 +155,6 @@ public class StartScreenActivity extends Activity {
 				    			public void onClick(DialogInterface dialog, int which) {
 				    			
 				    				finish();
-				    			//startActivityForResult(new Intent(
-				    					//android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS),0);
 				        }
 				     })
 				    .setIcon(getResources().getDrawable(R.drawable.ic_check_un)).create();
@@ -164,7 +169,7 @@ public class StartScreenActivity extends Activity {
 						}
 						
 					});
-
+				/*Location found*/	
 				}else if(result[0].equalsIgnoreCase("1.0")){
 					 Intent intent = new Intent(StartScreenActivity.this, MainActivity.class);
 					  intent.putExtra("lat", result[1]);
@@ -175,6 +180,7 @@ public class StartScreenActivity extends Activity {
 			}
 			
 		});
+		/*Calls the starter to find the location*/
 		start.execute(""); 
 	}
 

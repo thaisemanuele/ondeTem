@@ -22,12 +22,19 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 /**
- * Fragment used for managing interactions for and presentation of a navigation
- * drawer. See the <a href=
+ * NavigationDrawerFragment
+ * This Fragment is an interface used for managing interactions for and presentation of a navigation
+ * drawer. It is necessary in order to the NavigationDrawer to work properly and it is implemented by the MainActivity
+ * *********
+ * See the 
  * "https://developer.android.com/design/patterns/navigation-drawer.html#Interaction"
- * > design guidelines</a> for a complete explanation of the behaviors
- * implemented here.
+ * for a complete explanation of the behaviors implemented here.
+ *
+ * @author Thais Santos
+ * @version 2.0
+ * @since October 01, 2014
  */
+
 public class NavigationDrawerFragment extends Fragment {
 
 	/**
